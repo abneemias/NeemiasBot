@@ -1,0 +1,85 @@
+Public parar As Boolean
+
+Sub Apresentar()
+    Dim Tick As Integer
+    Tick = 0
+    parar = False
+    With ActivePresentation.SlideShowSettings
+        .Run.View.AcceleratorsEnabled = False
+    End With
+    While Not parar
+        lag = 4
+        Start = Timer
+
+        While Timer < Start + lag
+            DoEvents
+            If parar Then
+                Exit Sub
+            End If
+        Wend
+             
+            'ActivePresentation.SlideShowWindow.View.Next
+            With ActivePresentation.SlideShowWindow.View
+                 .GotoSlide Int((ActivePresentation.Slides.Count * Rnd) + 1)
+            End With
+            
+        End If
+        If Tick > 6 Then
+            Tick = 0
+            Call criarslides
+        Else
+            Tick = Tick + 1
+        End If
+            
+    Wend
+End Sub
+
+Sub criarslides()
+    Const FileType As String = "*.*"
+    Dim fso
+    Dim sSaveFilePath As String, sSaveFileName As String, sImagesFolder As String
+    Dim oLayout As CustomLayout, oSlide As Slide, i As Long, sFile As String
+
+    sImagesFolder = "C:\Users\neemi\Documents\Python\NeemiasBot\Fotos\"
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+     With ActivePresentation
+        ' Use the first layout for all new slides
+        Set oLayout = .SlideMaster.CustomLayouts(1)
+        ' Start processing all files in the folder
+        sFile = Dir(sImagesFolder & FileType)
+        Do Until sFile = ""
+            ' Add new slide
+            Set oSlide = .Slides.AddSlide(.Slides.Count + 1, oLayout)
+            ' Delete all the shapes from that layout
+            For i = oSlide.Shapes.Count To 1 Step -1
+                oSlide.Shapes(i).Delete
+            Next i
+            ' Add the image to slide
+            With oSlide.Shapes.AddPicture(sImagesFolder & sFile, msoFalse, msoTrue, 0, 0, -1, oLayout.Height)
+                .LockAspectRatio = msoTrue
+            End With
+            oSlide.Shapes(1).Left = (oLayout.Width - oSlide.Shapes(1).Width) / 2
+            
+            With oSlide
+                With .SlideShowTransition
+                    .EntryEffect = ppEffectRandom
+                    .Speed = ppTransitionSpeedMedium
+            
+                    .AdvanceOnClick = msoTrue
+                    .AdvanceOnTime = msoTrue
+                    .AdvanceTime = 30
+                End With
+            End With
+        
+            fso.MoveFile (sImagesFolder & sFile), ("C:\Teste\Adicionadas\" & sFile)
+            
+            sFile = Dir
+        Loop
+    End With
+End Sub
+
+Sub Mostrar()
+    UserForm1.Show
+End Sub
