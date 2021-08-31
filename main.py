@@ -45,11 +45,14 @@ def help_command(update: Update, context: CallbackContext) -> None:
 def photo_handler(update: Update, context: CallbackContext) -> None:
     newFile = update.message.effective_attachment[-1].get_file()
     newFile.download("Fotos/"+str(update.update_id)+'.jpg')
-
+    
+def video_handler(update: Update, context: CallbackContext) -> None:
+    newFile = update.message.effective_attachment.get_file()
+    newFile.download("Videos/"+str(update.update_id)+'.mp4')
 
    
 def echo(update: Update, context: CallbackContext) -> None:  
-    if(update.message.text == "abneemias"):
+    if(update.message.text == "senhasenha"):
         if(update.update_id in permitidos):
             update.message.reply_text("Já autorizado")
         else:
@@ -87,6 +90,7 @@ def main() -> None:
     # on non command i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
     dispatcher.add_handler(MessageHandler(Filters.photo, photo_handler))
+    dispatcher.add_handler(MessageHandler(Filters.video, video_handler))
     # Start the Bot
     updater.start_polling()
 
