@@ -14,6 +14,7 @@ bot.
 """
 
 import logging
+import atexit
 
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -24,7 +25,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -42,10 +42,30 @@ def help_command(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Help!')
 
 
-def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
+def photo_handler(update: Update, context: CallbackContext) -> None:
+    newFile = update.message.effective_attachment[-1].get_file()
+    newFile.download("Fotos/"+str(update.update_id)+'.jpg')
 
+
+   
+def echo(update: Update, context: CallbackContext) -> None:  
+    if(update.message.text == "abneemias"):
+        if(update.update_id in permitidos):
+            update.message.reply_text("Já autorizado")
+        else:
+            permitidos.append(str(update.effective_user.id))
+            update.message.reply_text("Senha Correta")
+    else:
+        if(str(update.effective_user.id) in permitidos):
+            print("Oi")
+        else:
+            update.message.reply_text("Sai daqui, esquisito")
+        
+
+def savequit(nomes):
+    arquivo = open("permitidos.txt","w");
+    for i in nomes:
+        arquivo.write(str(i)+"\n")
 
 def main() -> None:
     """Start the bot."""
@@ -53,7 +73,10 @@ def main() -> None:
     ref_arquivo = open("token.txt","r")
     updater = Updater(ref_arquivo.readlines()[0])
     ref_arquivo.close()
-    
+    leitura_arquivo = open("permitidos.txt","r");
+    global permitidos
+    permitidos = leitura_arquivo.read().splitlines()
+    leitura_arquivo.close()
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
@@ -63,7 +86,7 @@ def main() -> None:
 
     # on non command i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
-
+    dispatcher.add_handler(MessageHandler(Filters.photo, photo_handler))
     # Start the Bot
     updater.start_polling()
 
@@ -71,6 +94,7 @@ def main() -> None:
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
+    atexit.register(savequit,permitidos)
 
 
 if __name__ == '__main__':
