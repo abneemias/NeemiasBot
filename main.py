@@ -54,13 +54,13 @@ def video_handler(update: Update, context: CallbackContext) -> None:
 def echo(update: Update, context: CallbackContext) -> None:  
     if(update.message.text == "senhasenha"):
         if(update.update_id in permitidos):
-            update.message.reply_text("Já autorizado")
+            update.message.reply_text("J? autorizado")
         else:
             permitidos.append(str(update.effective_user.id))
             update.message.reply_text("Senha Correta")
     else:
         if(str(update.effective_user.id) in permitidos):
-            print("Oi")
+            update.message.reply_text("Voce ? chavoso")
         else:
             update.message.reply_text("Sai daqui, esquisito")
         
