@@ -15,6 +15,7 @@ bot.
 
 import logging
 import atexit
+import os
 
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -82,7 +83,12 @@ def main() -> None:
     leitura_arquivo.close()
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
-
+    if os.path.isdir("Fotos"):
+        print("O diretorio existe!")    
+    else:
+        os.mkdir('./Fotos')
+        os.mkdir('./Videos')
+        print("Criando Diretorios")
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
